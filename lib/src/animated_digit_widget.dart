@@ -414,6 +414,8 @@ class AnimatedDigitWidget extends StatefulWidget {
   /// ```
   final List<ValueColor>? valueColors;
 
+  final String Function(num value)? formatter;
+
   /// see [AnimatedDigitWidget]
   AnimatedDigitWidget({
     Key? key,
@@ -434,6 +436,7 @@ class AnimatedDigitWidget extends StatefulWidget {
     this.autoSize = true,
     this.animateAutoSize = true,
     this.valueColors,
+    this.formatter,
   })  : assert(separateLength >= 1,
             "@separateLength at least greater than or equal to 1"),
         assert(!(value == null && controller == null),
@@ -514,7 +517,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
 
   String _getFormatValueAsString() {
     return _formatNum(
-      _value.toString(),
+      _value,
       fractionDigits: widget.fractionDigits,
     );
   }
@@ -568,7 +571,13 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     _markNeedRebuild();
   }
 
-  String _formatNum(String numstr, {int fractionDigits = 2}) {
+  String _formatNum(num value, {int fractionDigits = 2}) {
+    if (widget.formatter != null) {
+      return widget.formatter!(value);
+    }
+
+    final numstr = value.toString();
+
     String result;
     final String _numstr = isNegative ? numstr.replaceFirst("-", "") : numstr;
     final List<String> numSplitArr = num.parse(_numstr).toString().split('.');
